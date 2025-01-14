@@ -8,9 +8,46 @@ datasource db {
 }
 
 model User {
-  id                              String                @id @default(uuid())
-  email                           String?               @unique
-  password                        String?
-  avatar                          String?
-  created_at                      DateTime              @default(now())
+  id                   Int          @id @default(uuid())
+  email                String?      @unique
+  password             String?
+  avatar               String?
+  created_at           DateTime     @default(now())
+}
+
+model Feedback {
+  id                  Int         @id @default(uuid())
+  title               String?               
+  description         String?
+  category            Category
+  status              Status
+  authorId            Int 
+  author              User        @relation(fields: [authorId], references: [id])
+  vote_count          Int         @default(0)
+  created_at          DateTime    @default(now())
+  updated_at          DateTime    @updatedAt
+
+  @@index([category], type: Hash)
+  @@index([status], type: Hash)
+}
+
+enum Status {
+  InWork
+  Planned
+  Completed
+}
+
+model Category {
+  id       Int             @id @default(uuid())
+  name     String? 
+}
+
+model Voted {
+  userId     Int
+  user       User       @relation(fields: [userId], references: [id])
+  feedbackId Int
+  feedback   Feedback   @relation(fields: [feedbackId], references: [id])
+  assignedAt DateTime   @default(now())
+
+  @@id([userId, feedbackId])
 }
